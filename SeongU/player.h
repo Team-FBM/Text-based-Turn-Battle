@@ -1,5 +1,4 @@
-#pragma once
-#include<iostream>;
+#include <iostream>
 using namespace std;
 
 class Player
@@ -13,10 +12,9 @@ public:
 
 	Player(string name, double hp, int atk, int def, int agi);
 	void showState();
-	
 };
 
-class action:public Player
+class action : public Player
 {
 public:
 	void attack(string key);

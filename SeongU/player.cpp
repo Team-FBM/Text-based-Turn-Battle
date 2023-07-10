@@ -1,7 +1,8 @@
-#include<iostream>
-#include<random>
+#include <iostream>
+#include <random>
+#include "player.h"
+
 using namespace std;
-#include"player.h";
 
 Player::Player(string name, double hp, int atk, int def, int agi)
 {
@@ -12,7 +13,7 @@ Player::Player(string name, double hp, int atk, int def, int agi)
 	this->AGI = agi;
 }
 
-void Player::showState() 
+void Player::showState()
 {
 	cout << this->name << endl;
 	cout << "HP : " << this->HP << "   ";
@@ -22,18 +23,19 @@ void Player::showState()
 }
 
 Player *initialize()
-{	
+{
 	string username;
 	cout << "Enter your name : ";
 	cin >> username;
-	Player* user = new Player(username, 200, 20, 10, 30);
-	cout << "Start the battle." << "\n";
+	Player *user = new Player(username, 200, 20, 10, 30);
+	cout << "Start the battle."
+		 << "\n";
 	return user;
 }
 
-Player* enemyState()
+Player *enemyState()
 {
-	Player* enemy = new Player("enemy", 1000, 30, 20, 40);
+	Player *enemy = new Player("enemy", 1000, 30, 20, 40);
 	return enemy;
 }
 
