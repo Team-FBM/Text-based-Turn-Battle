@@ -73,18 +73,6 @@ void printRoundInfo(Player *player, Player *enemy, int round)
          << "\tAGI :  " << player->agi << endl;
 }
 
-Player * initializeCharacter()
-{
-    cout << "name : ";
-    string username;
-    cin >> username;
-    Player *user = new Player(username, 100, 20, 20, 20);
-    return user;
-}
-Player * initializeCharacter(string name)
-{
-    Player *enemy = new Player(name, 1000, 10, 10, 10);
-    return enemy;
 
 
 }
