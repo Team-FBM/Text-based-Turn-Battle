@@ -6,18 +6,39 @@ class Actor
 protected:
 	string NAME;
 	double HP;
-	double curHp;
+	double curHP;
 	int ATK;
 	int DEF;
 	int AGI;
 public:
-void ShowState()
+	void ShowState()
 	{
 		cout << this->NAME << "\n";
-		cout << "HP : " << this->curHp << "   ATK : " << this->ATK << "   DEF : "
+		cout << "HP : " << this->curHP << "   ATK : " << this->ATK << "   DEF : "
 			 << this->DEF << "   AGi : " << this->AGI << "\n";
 	}
+	void Attack()
+	{
+		
+	}
 
+	int Get(string A)
+	{	
+		if(A=="ATK")
+		return ATK; 
+		if(A=="DEF")
+		return DEF;
+		if(A=="AGI")
+		return AGI;
+	}
+
+	double GetHP(string A)
+	{
+		if(A=="HP")
+		return HP;
+		if(A=="curHP")
+		return curHP;
+	}
 
 };
 
@@ -30,7 +51,7 @@ public:
 		cin >> username;
 		this->NAME = username;
 		this->HP = hp;
-		this->curHp = HP;
+		this->curHP = HP;
 		this->ATK = atk;
 		this->DEF = def;
 		this->AGI = agi;
