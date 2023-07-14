@@ -1,5 +1,15 @@
 #include<iostream>
+#include<random>
 using namespace std;
+
+int GetRandom()
+{
+	random_device rd;
+	mt19937 mt(rd());
+	uniform_int_distribution<int>dist(0,9);
+	int randNum=dist(mt);
+	return randNum;
+}
 
 class Actor
 {
@@ -17,29 +27,61 @@ public:
 		cout << "HP : " << this->curHP << "   ATK : " << this->ATK << "   DEF : "
 			 << this->DEF << "   AGi : " << this->AGI << "\n";
 	}
-	void Attack()
-	{
-		
-	}
 
-	int Get(string A)
-	{	
-		if(A=="ATK")
-		return ATK; 
-		if(A=="DEF")
-		return DEF;
-		if(A=="AGI")
-		return AGI;
-	}
+    void Damaged(Actor * A)
+    {
+        
+        A->curHP=A->curHP-ATK;
+    }
 
-	double GetHP(string A)
-	{
-		if(A=="HP")
-		return HP;
-		if(A=="curHP")
-		return curHP;
-	}
+	// int Get(string A)
+	// {	
+	// 	if(A=="ATK")
+	// 	return ATK; 
+	// 	if(A=="DEF")
+	// 	return DEF;
+	// 	if(A=="AGI")
+	// 	return AGI;
+	// }
 
+	// double GetHP(string A)
+	// {
+	// 	if(A=="HP")
+	// 	return HP;
+	// 	if(A=="curHP")
+	// 	return curHP;
+	// }
+
+     void Attack(Actor *A)
+    {
+        int RandNum=GetRandom();
+
+        if(RandNum<9)
+        {
+            Damaged(A);
+            cout<<this->NAME<<" attacked : -"<<this->ATK<<"\n";
+        }
+        else if(RandNum==9)
+        {
+            cout<<this->NAME<<" attacked, but you missed it. : -0\n";
+        }
+        
+    }
+
+    void Healing()
+    {
+        this->curHP=curHP+ATK+DEF;
+
+        if(curHP>=200)
+            curHP=200; 
+    }
+
+    // void EnmeyAction()
+    // {
+    //     int RandNum=GetRandom();
+
+    //     if(RandNum)
+    // }
 };
 
 class User:public Actor
@@ -56,6 +98,8 @@ public:
 		this->DEF = def;
 		this->AGI = agi;
 	}
+    
+    
 };
 
 class Enemy:public Actor
@@ -65,7 +109,7 @@ public:
 	{
 		this->NAME = enemyname;
 		this->HP = hp;
-		this->curHp = HP;
+		this->curHP = HP;
 		this->ATK = atk;
 		this->DEF = def;
 		this->AGI = agi;
@@ -75,15 +119,31 @@ public:
 void Initialize(Actor* &A, Actor* &B);
 void RoundInfo(int i, Actor* &A, Actor*&B);
 
+
+
+
+
 int main()
 {
-	Actor *user,*enemy;
+	Actor*user;
+    Actor *enemy;
 	Initialize(user,enemy);
-	cout<<"hi";
 
-	for(int i;;i++)
+	for(int i=0;;i++)
 	{
 		RoundInfo(i,user,enemy);
+        string key;
+        cin>>key;
+        cout<<"--------------------------------------------------\n";
+        if(key=="Q"||key=="q")
+            user->Attack(enemy);
+        
+        else if(key=="E"||key=="e")
+            user->Healing();
+
+        // if(User->curHP==0)
+        // break;
+        // else if(Enemy->curHP==0)
 	}
 
 }
@@ -110,4 +170,5 @@ void RoundInfo(int i,Actor *&A,Actor *&B)
 	cout << "\nAttack : Q\n";
 	cout << "Defense : W\n";
 	cout << "Healing : E\n";
+    cout<<"--------------------------------------------------\n";
 }
