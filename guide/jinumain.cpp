@@ -75,7 +75,6 @@ void printRoundInfo(Player *player, Player *enemy, int round)
 
 
 
-}
 
 
 int main()
