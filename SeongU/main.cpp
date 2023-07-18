@@ -6,8 +6,8 @@ int GetRandom()
 {
 	random_device rd;
 	mt19937 mt(rd());
-	uniform_int_distribution<int>dist(0,9);
-	int randNum=dist(mt);
+	uniform_int_distribution<int>dist(0, 9);
+	int randNum = dist(mt);
 	return randNum;
 }
 
@@ -25,66 +25,67 @@ public:
 	{
 		cout << this->NAME << "\n";
 		cout << "HP : " << this->curHP << "   ATK : " << this->ATK << "   DEF : "
-			 << this->DEF << "   AGi : " << this->AGI << "\n";
+			<< this->DEF << "   AGi : " << this->AGI << "\n";
 	}
 
-    void Damaged(Actor * A)
-    {
-        
-        A->curHP=A->curHP-ATK;
-    }
+	void Damaged(Actor* A)
+	{
 
-	// int Get(string A)
-	// {	
-	// 	if(A=="ATK")
-	// 	return ATK; 
-	// 	if(A=="DEF")
-	// 	return DEF;
-	// 	if(A=="AGI")
-	// 	return AGI;
-	// }
+		A->curHP = A->curHP - ATK;
+	}
 
-	// double GetHP(string A)
-	// {
-	// 	if(A=="HP")
-	// 	return HP;
-	// 	if(A=="curHP")
-	// 	return curHP;
-	// }
+	int Get(string A)
+	{
+		if (A == "ATK")
+			return ATK;
+		if (A == "DEF")
+			return DEF;
+		if (A == "AGI")
+			return AGI;
+	}
 
-     void Attack(Actor *A)
-    {
-        int RandNum=GetRandom();
+	double GetHP(string A)
+	{
+		if (A == "HP")
+			return HP;
+		if (A == "curHP")
+			return curHP;
+	}
 
-        if(RandNum<9)
-        {
-            Damaged(A);
-            cout<<this->NAME<<" attacked : -"<<this->ATK<<"\n";
-        }
-        else if(RandNum==9)
-        {
-            cout<<this->NAME<<" attacked, but you missed it. : -0\n";
-        }
-        
-    }
+	void UserAttack(Actor* A)
+	{
+		int RandNum = GetRandom();
 
-    void Healing()
-    {
-        this->curHP=curHP+ATK+DEF;
+		if (RandNum < 9)
+		{
+			Damaged(A);
+			cout << this->NAME << " Attacked : -" << this->ATK << "\n";
+		}
+		else if (RandNum == 9)
+		{
+			cout << this->NAME << " Attacked, but you missed it. : -0\n";
+		}
 
-        if(curHP>=200)
-            curHP=200; 
-    }
+	}
 
-    // void EnmeyAction()
-    // {
-    //     int RandNum=GetRandom();
+	void UserHealing()
+	{
+		this->curHP = curHP + ATK + DEF;
 
-    //     if(RandNum)
-    // }
+		if (curHP >= 200)
+			curHP = 200;
+
+		cout << this->NAME << "Healed : +" << this->ATK + this->DEF << "\n";
+	}
+
+	/*void Deffense()
+	{
+
+	}*/
+
 };
 
-class User:public Actor
+class User :public Actor
 {
 public:
 	User(double hp, int atk, int def, int agi)
@@ -98,11 +99,17 @@ public:
 		this->DEF = def;
 		this->AGI = agi;
 	}
-    
-    
+
+
+
+	friend class Enemy;
+
+
+
+
 };
 
-class Enemy:public Actor
+class Enemy :public Actor
 {
 public:
 	Enemy(string enemyname, double hp, int atk, int def, int agi)
@@ -114,10 +121,66 @@ public:
 		this->DEF = def;
 		this->AGI = agi;
 	}
+
+	void EnemyAction(User* A)
+	{
+		GetHP("curHP");
+		int RandNum = GetRandom();
+		if (((this->curHP) * 100 / this->HP) > ((A->curHP) * 100 / A->HP))
+		{
+			if (RandNum > 7)
+				EnemyAttack(A);
+			/*else if (RandNum <= 7 && RandNum > 3)
+				EnemyDeffense();*/
+			else if (RandNum >= 0 && RandNum < 4)
+				EnemyHealing();
+		}
+		else if (((this->curHP) * 100 / this->HP) < ((A->curHP) * 100 / A->HP))
+		{
+			if (RandNum > 2)
+				EnemyAttack(A);
+			/*else if (RandNum == 1 || RandNum == 2)
+				EnemyDeffense();*/
+			else if (RandNum == 0)
+				EnemyHealing();
+		}
+	}
+
+	void EnemyAttack(Actor* A)
+	{
+		int RandNum = GetRandom();
+
+		if (RandNum < 9)
+		{
+			Damaged(A);
+			cout << this->NAME << " attacked : -" << this->ATK << "\n";
+		}
+		else if (RandNum == 9)
+		{
+			cout << this->NAME << " attacked but missed. : -0\n";
+		}
+	}
+
+	/*void EnemyDeffense()
+	{
+
+	}*/
+
+	void EnemyHealing()
+	{
+		this->curHP = curHP + ATK + DEF;
+
+		if (curHP >= 1000)
+			curHP = 1000;
+
+		cout << this->NAME << "Healed : +" << this->ATK + this->DEF << "\n";
+	}
 };
 
-void Initialize(Actor* &A, Actor* &B);
-void RoundInfo(int i, Actor* &A, Actor*&B);
+
+
+void Initialize(User*& A, Enemy*& B);
+void RoundInfo(int i, User*& A, Enemy*& B);
 
 
 
@@ -125,25 +188,27 @@ void RoundInfo(int i, Actor* &A, Actor*&B);
 
 int main()
 {
-	Actor*user;
-    Actor *enemy;
-	Initialize(user,enemy);
+	User* user;
+	Enemy* enemy;
+	Initialize(user, enemy);
 
-	for(int i=0;;i++)
+	for (int i = 0;; i++)
 	{
-		RoundInfo(i,user,enemy);
-        string key;
-        cin>>key;
-        cout<<"--------------------------------------------------\n";
-        if(key=="Q"||key=="q")
-            user->Attack(enemy);
-        
-        else if(key=="E"||key=="e")
-            user->Healing();
+		RoundInfo(i, user, enemy);
+		string key;
+		cin >> key;
+		cout << "--------------------------------------------------\n";
+		if (key == "Q" || key == "q")
+			user->UserAttack(enemy);
 
-        // if(User->curHP==0)
-        // break;
-        // else if(Enemy->curHP==0)
+		else if (key == "E" || key == "e")
+			user->UserHealing();
+
+		enemy->EnemyAction(user);
+
+		// if(User->curHP==0)
+		// break;
+		// else if(Enemy->curHP==0)
 	}
 
 }
@@ -152,15 +217,15 @@ int main()
 
 
 
-void Initialize(Actor* &A, Actor* &B)
+void Initialize(User *& A, Enemy *& B)
 {
 	cout << "Enter your name : ";
-	A =new User(200, 20, 10, 30);
-	B =new Enemy("enemy", 1000, 30, 20, 40);
+	A = new User(200, 20, 10, 30);
+	B = new Enemy("enemy", 1000, 30, 20, 40);
 	cout << "\nStart the battle.\n";
 }
 
-void RoundInfo(int i,Actor *&A,Actor *&B)
+void RoundInfo(int i, User*& A, Enemy*& B)
 {
 	cout << "--------------------------------------------------\n";
 	cout << "round " << i + 1 << "\n";
@@ -170,5 +235,5 @@ void RoundInfo(int i,Actor *&A,Actor *&B)
 	cout << "\nAttack : Q\n";
 	cout << "Defense : W\n";
 	cout << "Healing : E\n";
-    cout<<"--------------------------------------------------\n";
+	cout << "--------------------------------------------------\n";
 }
