@@ -33,6 +33,7 @@ protected:
 	int ATK;
 	int DEF;
 	int AGI;
+	int SaveAGI;
 	int TempAGI;
 public:
 	void ShowState()
@@ -76,10 +77,11 @@ public:
 		this->ATK = atk;
 		this->DEF = def;
 		this->AGI = agi;
+		this->SaveAGI = this->AGI;
 	}
 
-	int UAC(string A)//UAC=User Action Control
-	{	
+	int USM(string A)//USM=User State Machine
+	{
 		int key;
 		if (A == "Q" || A == "q")//when user attack
 			return 1;
@@ -104,9 +106,10 @@ public:
 		this->ATK = atk;
 		this->DEF = def;
 		this->AGI = agi;
+		this->SaveAGI = this->AGI;
 	}
 
-	int EAC(User *A)//EAC=Enemy Action Control
+	int ESM(User* A)//ESM=Enemy State Machine
 	{
 		int RandNum = GetRandom();
 		int key;
@@ -153,17 +156,18 @@ public:
 
 
 
-class Observer:Actor
+class Observer :Actor
 {
 	friend class User;
 	friend class Enemy;
 public:
+	int UserAGIDecreaseRound = 0;
+	int EnemyAGIDecreaseRound = 0;
 
-	void StateMachine(User *A,Enemy* B,string C)
-	{	
-		int U = A->UAC(C);
-		int E = B->EAC(A);
-
+	void ActionControl(User* A, Enemy* B, string C, int i)
+	{
+		int U = A->USM(C);
+		int E = B->ESM(A);
 		int UserAGI = A->Get("AGI");
 		int EnemyAGI = B->Get("AGI");
 
@@ -171,48 +175,66 @@ public:
 		{
 			if (U == 1 && E == 1)
 			{
-				UserAttack(A,B);
-				EnemyAttack(A,B);
+				UserAttack(A, B, i);
+				EnemyAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 1 && E == 2)
 			{
-				UserAttack(A,B);
+				UserAttack(A, B, i);
 				EnemyDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 1 && E == 3)
 			{
-				UserAttack(A,B);
+				UserAttack(A, B, i);
 				EnemyHealing(B);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 2 && E == 1)
 			{
 				UserDefense();
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 2 && E == 2)
 			{
 				UserDefense();
 				EnemyDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 2 && E == 3)
 			{
 				UserDefense();
 				EnemyHealing(B);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 1)
 			{
 				UserHealing(A);
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 2)
 			{
 				UserHealing(A);
 				EnemyDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 3)
 			{
 				UserHealing(A);
 				EnemyHealing(B);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 
 		}
@@ -220,65 +242,85 @@ public:
 		{
 			if (U == 1 && E == 1)
 			{
-				EnemyAttack(A,B);
-				UserAttack(A,B);
+				EnemyAttack(A, B, i);
+				UserAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 1 && E == 2)
 			{
 				EnemyDefense();
-				UserAttack(A,B);
+				UserAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 1 && E == 3)
 			{
 				EnemyHealing(B);
-				UserAttack(A,B);
+				UserAttack(A, B, i);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 2 && E == 1)
 			{
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
 				UserDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 2 && E == 2)
 			{
 				EnemyDefense();
 				UserDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
+				
 			}
 			else if (U == 2 && E == 3)
 			{
 				EnemyHealing(B);
 				UserDefense();
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 1)
 			{
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
 				UserHealing(A);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 2)
 			{
 				EnemyDefense();
 				UserHealing(A);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 			else if (U == 3 && E == 3)
 			{
 				EnemyHealing(B);
 				UserHealing(A);
+				UserRestoreAGI(A, EnemyAGIDecreaseRound, i);
+				EnemyRestoreAGI(B, UserAGIDecreaseRound, i);
 			}
 		}
 
-		
-		
+
+
 	}
 
 
-	void UserAttack(User *A, Enemy*B)//A->B this->A,
+	void UserAttack(User* A, Enemy* B, int i)
 	{
 		int RandNum1 = GetRandom();
 		int RandNum2 = GetRandom();
-		bool EnemyDefenseKey =CheckEnemyDefenseKey();
-		if (EnemyDefenseKey == true)
+		bool EnemyDefenseKey = CheckEnemyDefenseKey();//check opponent defenFded.
+
+		if (EnemyDefenseKey == true)//when opponent defended
 		{
 			int ATKDEF = A->ATK - B->DEF;
-			if (ATKDEF < 0)
+			if (ATKDEF < 0)//if ATK-DEF is negative, treat it 0
 				ATKDEF = 0;
 
 			cout << A->NAME << " attacked, but " << B->NAME << " defended. : " << -ATKDEF << "\n";
@@ -287,22 +329,19 @@ public:
 
 
 
-		else
+		else//when opponent doesn't defended
 		{
-			if (RandNum1 < 9)
+			if (RandNum1 < 9)//when attack
 			{
-				EnemyDamaged(A,B);
+				EnemyDamaged(A, B);
 				cout << A->NAME << " Attacked : -" << A->ATK << "\n";
-				if (RandNum2 == 9)
+				if (RandNum2 == 9)//when attack and decrease AGI
 				{
-					int Rate = GetRandomNum();
-					B->TempAGI = B->AGI - (A->ATK + (A->ATK * Rate / 10));
-					B->AGI = B->TempAGI;
-					cout << B->NAME << " AGI has been reduced for one turn due to " << A->NAME << "'s attack! : "
-						<< -(A->ATK + (A->ATK * Rate / 10)) << "\n";
+					DecreaseAGI(A, B);
+					EnemyAGIDecreaseRound = i;
 				}
 			}
-			else if (RandNum1 == 9)
+			else if (RandNum1 == 9)//when attack miss
 			{
 				cout << A->NAME << " Attacked, but you missed it. : -0\n";
 			}
@@ -310,34 +349,33 @@ public:
 	}
 
 
-	void UserHealing(User*A)
+	void UserHealing(User* A)
 	{
-		A->curHP = curHP + ATK + DEF;
+		A->curHP = A->curHP + A->ATK + A->DEF;
 
-		if (curHP >= 200)
-			curHP = 200;
+		if (A->curHP >= 200)//max enemyHp it 200
+			A->curHP = 200;
 
-		cout << this->NAME << "Healed : +" << this->ATK + this->DEF << "\n";
+		cout << A->NAME << "Healed : +" << A->ATK + A->DEF << "\n";
 	}
 
-	/////////////////////////////////////////////////////////
 
-	void EnemyAction(User* A,Enemy*B)//this->B
+	void EnemyAction(User* A, Enemy* B, int i)
 	{
 		int RandNum = GetRandom();
-		if (((B->curHP) * 100 / B->HP) > ((A->curHP) * 100 / A->HP))
+		if (((B->curHP) * 100 / B->HP) >= ((A->curHP) * 100 / A->HP))//when enemyHP>=userHP
 		{
 			if (RandNum > 7)
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
 			else if (RandNum <= 7 && RandNum > 3)
 				EnemyDefense();
 			else if (RandNum >= 0 && RandNum < 4)
 				EnemyHealing(B);
 		}
-		else if (((B->curHP) * 100 / B->HP) < ((A->curHP) * 100 / A->HP))
+		else if (((B->curHP) * 100 / B->HP) < ((A->curHP) * 100 / A->HP))//when userHP<enemyHP
 		{
 			if (RandNum > 2)
-				EnemyAttack(A,B);
+				EnemyAttack(A, B, i);
 			else if (RandNum == 1 || RandNum == 2)
 				EnemyDefense();
 			else if (RandNum == 0)
@@ -345,49 +383,46 @@ public:
 		}
 	}
 
-	void EnemyAttack(User* A,Enemy*B)//this->B
+	void EnemyAttack(User* A, Enemy* B, int i)//this->B
 	{
 		int RandNum1 = GetRandom();
 		int RandNum2 = GetRandom();
-		bool UserDefenseKey = CheckUserDefenseKey();
-		if (UserDefenseKey == true)
+		bool UserDefenseKey = CheckUserDefenseKey();//check opponent defended
+		if (UserDefenseKey == true)//when opponent defended
 		{
 			int ATKDEF = B->ATK - A->DEF;
-			if (ATKDEF < 0)
+			if (ATKDEF < 0)//if ATK-DEF is negative, treat it 0
 				ATKDEF = 0;
 
 
 			cout << B->NAME << " attacked, but " << A->NAME << " defended. : " << -ATKDEF << "\n";
 			ReturnUserDefenseKey();
 		}
-		else
+		else//when opponent doesn't defended
 		{
-			if (RandNum1 < 9)
+			if (RandNum1 < 9)//when attack
 			{
-				UserDamaged(A,B);
+				UserDamaged(A, B);
 				cout << B->NAME << " attacked : -" << B->ATK << "\n";
 
-				if (RandNum2 == 9)
+				if (RandNum2 == 9)//when attack and decrease AGI
 				{
-					int Rate = GetRandomNum();
-					A->TempAGI = A->AGI - (B->ATK + (B->ATK * Rate / 10));
-					A->AGI = A->TempAGI;
-					cout << B->NAME << " AGI has been reduced for one turn due to " << A->NAME << "'s attack! : "
-						<< -(B->ATK + (B->ATK * Rate / 10)) << "\n";
+					DecreaseAGI(A, B);
+					UserAGIDecreaseRound = i;
 				}
 
 			}
-			else if (RandNum1 == 9)
+			else if (RandNum1 == 9)//when attack miss
 			{
 				cout << B->NAME << " attacked but missed. : -0\n";
 			}
 		}
 	}
-	void EnemyHealing(Enemy*B)
+	void EnemyHealing(Enemy* B)
 	{
 		B->curHP = B->curHP + B->ATK + B->DEF;
 
-		if (B->curHP >= 1000)
+		if (B->curHP >= 1000)//max enemyHP is 1000
 			B->curHP = 1000;
 
 		cout << B->NAME << "Healed : +" << B->ATK + B->DEF << "\n";
@@ -398,7 +433,7 @@ public:
 	{
 		UserDefenseKey = 1;
 	}
-	bool CheckUserDefenseKey()
+	bool CheckUserDefenseKey()//check user defense
 	{
 		if (UserDefenseKey == 1)
 			return true;
@@ -410,10 +445,10 @@ public:
 		UserDefenseKey = 0;
 		return UserDefenseKey;
 	}
-	
+
 	int EnemyDefenseKey;
 
-	void EnemyDefense()
+	void EnemyDefense()//check enemy defense
 	{
 		EnemyDefenseKey = 1;
 	}
@@ -436,6 +471,30 @@ public:
 	void EnemyDamaged(User* A, Enemy* B)
 	{
 		B->curHP = B->curHP - A->ATK;
+	}
+
+	void UserRestoreAGI(User *A, int a, int i)
+	{
+		if (a + 2 == i)
+		{
+			A->AGI = A->SaveAGI;
+		}
+	}
+	void EnemyRestoreAGI(Enemy* A, int a, int i)
+	{
+		if (a + 2 == i)
+		{
+			A->AGI = A->SaveAGI;
+		}
+	}
+
+	void DecreaseAGI(User* A, Enemy* B)
+	{
+		int Rate = GetRandomNum();
+		A->TempAGI = A->AGI - (B->ATK + (B->ATK * Rate / 10));
+		A->AGI = A->TempAGI;
+		cout << B->NAME << " AGI has been reduced for one turn due to " << A->NAME << "'s attack! : "
+			<< -(B->ATK + (B->ATK * Rate / 10)) << "\n";
 	}
 };
 
@@ -464,19 +523,19 @@ int main()
 		string key;//User Action Control Key
 		cin >> key;
 		cout << "--------------------------------------------------\n";
-		
+
 		double UserHP = user->GetHP("curHP");
 		double EnemyHP = enemy->GetHP("curHP");
 
-		observer->StateMachine(user, enemy, key);
+		observer->ActionControl(user, enemy, key, i);
 
 		if (UserHP == 0 || EnemyHP == 0)
 			break;
-		
+
 		cout << "Enter any key to proceed next round\n";
 		cin >> A;
 		system("cls");
-		
+
 	}
 
 }
